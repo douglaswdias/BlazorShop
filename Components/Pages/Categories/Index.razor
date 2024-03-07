@@ -1,0 +1,50 @@
+﻿@page "/categories"
+@rendermode InteractiveServer
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext Context
+
+<h1>Categories</h1>
+
+<a href="/categories/create" class="btn btn-info">Create</a>
+
+@if (!Categories.Any())
+{
+    <p>Loading Categories ...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var category in Categories)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <td>
+                        <a href="/categories/@category.Id">@category.Title</a>
+                    </td>
+                    <td>
+                        <a href="/categories/edit/@category.Id" class="btn btn-primary">EDIT</a>
+                        <a href="/categories/delete/@category.Id" class="btn btn-danger">DELETE</a>
+                    </td>
+                </tr>                
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    public IEnumerable<Category> Categories { get; set; } = Enumerable.Empty<Category>();
+    protected override async Task OnInitializedAsync()
+    {
+        Categories = await Context.Categories.AsNoTracking().ToListAsync();
+    }
+
+}

@@ -1,0 +1,48 @@
+﻿@page "/categories/delete/{Id:int}"
+@rendermode InteractiveServer
+@inject ApplicationDbContext Context
+@inject NavigationManager Navigation
+@*attribute [Authorize(Roles = "admin")]*@
+
+<h1>Delete Category</h1>
+
+@if (Model is null)
+{
+    <em>Category not found</em>
+}
+else
+{
+    <h1>@Model.Title (@Model.Id)</h1>
+    <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
+        <DataAnnotationsValidator />
+        <div class="mb-3">
+            <label class="form-label">Category Title</label>
+            <InputText @bind-Value="Model.Title" class="form-control" readonly/>
+            <ValidationMessage For="@(() => Model.Title)" />
+        </div>
+
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a href="/categories">Cancel</a>
+
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public Category? Model { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model = await Context.Categories.AsNoTracking().FirstOrDefaultAsync(x =>
+            x.Id == Id);
+    }
+
+    public async Task OnValidSubmit()
+    {
+        Context.Categories.Remove(Model);
+        await Context.SaveChangesAsync();
+        Navigation.NavigateTo("/categories");
+    }
+
+}
